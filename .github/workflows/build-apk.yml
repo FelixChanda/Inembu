@@ -8,42 +8,37 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
+      - uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '17'
 
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
+      - uses: android-actions/setup-android@v3
 
-      - name: Decode release keystore
-        if: ${{ secrets.RELEASE_KEYSTORE_BASE64 != '' }}
+      - name: Generate test keystore
         run: |
-          echo "${{ secrets.RELEASE_KEYSTORE_BASE64 }}" | base64 -d > release-key.jks
-          cat > keystore.properties <<EOF
-          storeFile=release-key.jks
-          storePassword=${{ secrets.RELEASE_STORE_PASSWORD }}
-          keyAlias=${{ secrets.RELEASE_KEY_ALIAS }}
-          keyPassword=${{ secrets.RELEASE_KEY_PASSWORD }}
-          EOF
+          keytool -genkeypair \
+            -alias testkey \
+            -keyalg RSA \
+            -keysize 2048 \
+            -validity 10000 \
+            -keystore release-key.jks \
+            -storepass android \
+            -keypass android \
+            -dname "CN=Test,O=Test,C=ZM"
 
-      - name: Grant execute permission for gradlew
+      - name: Grant execute permission
         run: chmod +x gradlew
 
-      # Play flavor: includes AdMob (already wired: AdMobGate.kt / AdBanner.kt use the
-      # ca-app-pub-6112734772406406/3052098308 unit + the manifest Application ID).
-      # withPlayServices=false skips the Firebase google-services/Crashlytics Gradle plugins,
-      # which need a google-services.json we don't have. AdMob itself doesn't need that file —
-      # LoggerGate.kt already catches missing Firebase config and just disables telemetry.
-      - name: Build Play release APK
+      - name: Build APK
         run: ./gradlew assemblePlayRelease -PwithPlayServices=false --no-daemon
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: hecate-play-release-apk
-          path: build/outputs/apk/play/release/*.apk
+          name: apk
+          path: app/build/outputs/apk/play/release/*.apk
