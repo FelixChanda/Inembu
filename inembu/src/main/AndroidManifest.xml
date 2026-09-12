@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright (C) 2024 xLexip <https://lexip.dev>
+  ~
+  ~ Licensed under the GNU General Public License, Version 3.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     https://www.gnu.org/licenses/gpl-3.0
+  ~
+  ~ Please see the License for specific terms regarding permissions and limitations.
+  -->
+
+<manifest xmlns:tools="http://schemas.android.com/tools"
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	tools:ignore="ProtectedPermissions">
+
+	<queries>
+		<package android:name="moe.shizuku.privileged.api" />
+		<package android:name="com.hamondev.shevery" />
+		<package android:name="kerneldroid.nightzuku" />
+		<package android:name="af.shizuku.plus.api" />
+	</queries>
+
+	<uses-permission
+		android:name="android.permission.FOREGROUND_SERVICE"
+		tools:ignore="ForegroundServicesPolicy" />
+	<uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+	<uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+	<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+	<uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS" />
+	<uses-permission android:name="android.permission.VIBRATE" />
+	<uses-permission android:name="android.permission.SET_WALLPAPER" />
+
+	<!-- One safeguard to support foldables but not tablets -->
+	<uses-feature
+		android:name="android.hardware.telephony"
+		android:required="true"
+		tools:ignore="UnnecessaryRequiredFeature" />
+
+	<uses-feature
+		android:name="android.hardware.sensor.light"
+		android:required="true" />
+
+	<uses-feature android:name="android.hardware.sensor.proximity" />
+
+	<supports-screens
+		android:smallScreens="true"
+		android:normalScreens="true"
+		android:largeScreens="true"
+		android:xlargeScreens="false"
+		android:resizeable="true"
+		android:anyDensity="true" />
+
+	<application
+		android:name="dev.lexip.hecate.Application"
+		android:allowBackup="false"
+		android:dataExtractionRules="@xml/data_extraction_rules"
+		android:fullBackupContent="@xml/backup_rules"
+		android:label="@string/app_name"
+		android:icon="@mipmap/ic_launcher"
+		android:roundIcon="@mipmap/ic_launcher"
+		android:supportsRtl="true"
+		android:theme="@style/Theme.App.Starting"
+		android:usesCleartextTraffic="false"
+		android:localeConfig="@xml/locales_config"
+		android:enableOnBackInvokedCallback="true"
+		android:intentMatchingFlags="enforceIntentFilter"
+		android:pageSizeCompat="enabled">
+
+		<!-- Shizuku provider to acquire binder from Shizuku/Sui -->
+		<provider
+			android:name="rikka.shizuku.ShizukuProvider"
+			android:authorities="${applicationId}.shizuku"
+			android:multiprocess="false"
+			android:enabled="true"
+			android:exported="true"
+			android:permission="android.permission.INTERACT_ACROSS_USERS_FULL" />
+
+
+		<activity
+			android:name=".ui.MainActivity"
+			android:exported="true"
+			android:theme="@style/Theme.App.Starting"
+			android:windowSoftInputMode="adjustResize">
+			<intent-filter>
+				<action android:name="android.intent.action.MAIN" />
+				<category android:name="android.intent.category.LAUNCHER" />
+			</intent-filter>
+			<intent-filter>
+				<action android:name="android.intent.action.APPLICATION_PREFERENCES" />
+				<category android:name="android.intent.category.DEFAULT" />
+			</intent-filter>
+			<intent-filter>
+				<action android:name="android.service.quicksettings.action.QS_TILE_PREFERENCES" />
+				<category android:name="android.intent.category.DEFAULT" />
+			</intent-filter>
+		</activity>
+
+		<receiver
+			android:name=".broadcasts.AppLifecycleReceiver"
+			android:exported="true">
+			<intent-filter>
+				<action android:name="android.intent.action.BOOT_COMPLETED" />
+			</intent-filter>
+			<intent-filter>
+				<action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+			</intent-filter>
+		</receiver>
+
+		<service
+			android:name=".services.BroadcastReceiverService"
+			android:foregroundServiceType="specialUse">
+			<property
+				android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+				android:value="lightweight_screen_on_brightness_based_theme_switch_special_use_fgs" />
+		</service>
+
+		<service
+			android:name=".services.QuickSettingsTileService"
+			android:exported="true"
+			android:permission="android.permission.BIND_QUICK_SETTINGS_TILE"
+			android:icon="@drawable/ic_app">
+			<intent-filter>
+				<action android:name="android.service.quicksettings.action.QS_TILE" />
+			</intent-filter>
+
+			<meta-data
+				android:name="android.service.quicksettings.ACTIVITY"
+				android:value="dev.lexip.hecate.ui.MainActivity" />
+			<meta-data
+				android:name="android.service.quicksettings.TILE_CATEGORY"
+				android:value="android.service.quicksettings.CATEGORY_DISPLAY" />
+		</service>
+
+	</application>
+
+</manifest>
