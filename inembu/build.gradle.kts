@@ -44,12 +44,12 @@ if (withPlayServices.get()) {
 val keystorePropertiesFile = rootProject.file("keystore.properties")
 val keystoreProperties = java.util.Properties().apply {
     if (keystorePropertiesFile.exists()) {
-        keystorePropertiesFile.inputStream().use { load(it) }
+        keystorePropertiesFile.inputStream().use { this.load(it) }
     }
 }
 
 fun signingProp(propertyName: String, envName: String): String? =
-    keystoreProperties.getProperty(propertyName)
+    keystoreProperties[propertyName] as? String
         ?: System.getenv(envName)?.takeIf { it.isNotBlank() }
 
 val releaseStoreFilePath = signingProp("storeFile", "RELEASE_STORE_FILE")
