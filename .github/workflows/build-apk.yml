@@ -22,17 +22,17 @@ jobs:
         cache: gradle
 
     - name: Grant execute permission for gradlew
-      run: chmod +x gradlew
+      run: chmod +x inembu/gradlew
 
     - name: Build FOSS Debug APK
-      run: ./gradlew buildFossDebug
+      run: cd inembu && ./gradlew buildFossDebug
 
     - name: Build FOSS Release APK (unsigned)
-      run: ./gradlew buildFossRelease
+      run: cd inembu && ./gradlew buildFossRelease
       continue-on-error: true
 
     - name: Run unit tests
-      run: ./gradlew testFossDebugUnitTest
+      run: cd inembu && ./gradlew testFossDebugUnitTest
       continue-on-error: true
 
     - name: Upload FOSS Debug APK
@@ -40,18 +40,18 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: foss-debug-apk
-        path: build/outputs/apk/foss/debug/*.apk
+        path: inembu/build/outputs/apk/foss/debug/*.apk
 
     - name: Upload FOSS Release APK
       if: always()
       uses: actions/upload-artifact@v4
       with:
         name: foss-release-apk
-        path: build/outputs/apk/foss/release/*.apk
+        path: inembu/build/outputs/apk/foss/release/*.apk
 
     - name: Upload Test Reports
       if: always()
       uses: actions/upload-artifact@v4
       with:
         name: test-reports
-        path: build/reports/tests/
+        path: inembu/build/reports/tests/
