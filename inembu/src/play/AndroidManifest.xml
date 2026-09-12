@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+	<uses-permission android:name="android.permission.INTERNET" />
+
+	<application>
+		<!-- AdMob App ID -->
+		<meta-data
+			android:name="com.google.android.gms.ads.APPLICATION_ID"
+			android:value="ca-app-pub-6112734772406406~1257364006" />
+
+		<!-- Explicitly disable AdID collection for Firebase Analytics -->
+		<meta-data
+			android:name="google_analytics_adid_collection_enabled"
+			android:value="false" />
+
+		<!-- Disables crashlytics for specific build types. -->
+		<meta-data
+			android:name="firebase_crashlytics_collection_enabled"
+			android:value="${crashlyticsEnabled}" />
+	</application>
+</manifest>
+
